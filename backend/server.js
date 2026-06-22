@@ -28,6 +28,8 @@ dns.setServers(['8.8.8.8', '8.8.4.4']);
 // ==========================================
 const app = express();
 
+const port = process.env.PORT || 4000;
+
 // ==========================================
 // 5. GLOBAL MIDDLEWARE (Must come before routes!)
 // ==========================================
