@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
 export default function Login({ setUser }) {
@@ -42,7 +42,7 @@ export default function Login({ setUser }) {
           }
         }, 1000);
       }
-    } catch (err) {
+    } catch (error) { console.error(error);
       setLoading(false);
       setError("Cannot link to authentication service. Verify your backend server is running.");
     }

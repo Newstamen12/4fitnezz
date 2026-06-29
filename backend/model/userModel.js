@@ -60,27 +60,54 @@ const userSchema = new Schema({
     grade: { type: String, default: '' },
     feedback: { type: String, default: '' },
     updatedAt: { type: Date, default: Date.now }
+  },
+
+  // 📊 GRADE HISTORY FOR PERFORMANCE TRACKING
+  gradeHistory: [
+    {
+      grade: { type: String, required: true },
+      feedback: { type: String, default: '' },
+      ratedBy: { type: String, default: 'Admin' },
+      ratedAt: { type: Date, default: Date.now }
+    }
+  ],
+
+  // 🎯 FITNESS GOALS SET BY ADMIN
+  goals: [
+    {
+      title: { type: String, required: true },
+      description: { type: String, default: '' },
+      target: { type: String, default: '' },
+      deadline: { type: Date, default: null },
+      status: { type: String, enum: ['active', 'completed', 'cancelled'], default: 'active' },
+      setBy: { type: String, default: 'Admin' },
+      createdAt: { type: Date, default: Date.now },
+      updatedAt: { type: Date, default: Date.now }
+    }
+  ],
+
+  // 📧 CLIENT NOTIFICATION PREFERENCES
+  emailNotifications: {
+    onGradeUpdate: { type: Boolean, default: true },
+    onFeedback: { type: Boolean, default: true },
+    onGoalSet: { type: Boolean, default: true }
   }
 }, { timestamps: true });
 
 // 🧠 2. STATIC SIGNUP METHOD (Handles Username + Secure Salt Hashing)
 userSchema.statics.signup = async function(username, email, password) {
-  // Field validation
   if (!username || !email || !password) {
     throw Error('All fields must be filled');
   }
 
-  // Check if user already exists
   const exists = await this.findOne({ email });
   if (exists) {
     throw Error('Email already in use');
   }
 
-  // Securely hash user password via bcrypt
   const salt = await bcrypt.genSalt(10);
   const hash = await bcrypt.hash(password, salt);
 
-  // Creating the user document
   const user = await this.create({ 
     username, 
     email, 
@@ -101,7 +128,6 @@ userSchema.statics.login = async function(email, password) {
     throw Error('Incorrect email');
   }
 
-  // Cross-examine hashed key with input token
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
     throw Error('Incorrect password');
@@ -110,5 +136,22 @@ userSchema.statics.login = async function(email, password) {
   return user;
 };
 
-// 📦 4. EXPORT COMPILED SCHEMATIC
-module.exports = mongoose.model('User', userSchema);
+// 📊 4. SWOT MATRIX ARCHITECTURE
+const swotSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  strengths: { type: String, default: '' },
+  weaknesses: { type: String, default: '' },
+  opportunities: { type: String, default: '' },
+  threats: { type: String, default: '' },
+  evaluatedBy: { type: String, default: 'Admin' }
+}, { timestamps: true });
+
+// 📦 5. CLEAN SINGLE EXPORT ENTRY FOR BOTH MODELS
+const User = mongoose.model('User', userSchema);
+const Swot = mongoose.model('Swot', swotSchema);
+
+module.exports = { User, Swot };

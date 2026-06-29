@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-
 // Image imports
 import pic1 from '../assets/4fitness pictures.jpg';
 import pic2 from '../assets/4fitness pictures2.jpg';
@@ -104,7 +102,7 @@ export default function About() {
                 alt={`4 FITNESS Community Event ${index + 1}`}
                 className="max-w-full max-h-full object-contain p-4 filter contrast-[1.02]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-neutral-50/20 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-t from-neutral-50/20 via-transparent to-transparent pointer-events-none" />
             </div>
           ))}
 

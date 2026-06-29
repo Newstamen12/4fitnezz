@@ -57,15 +57,28 @@ export default function Navbar({ user, setUser, currentPage, setCurrentPage }) {
             ))}
 
             {user && (
-              <Link
-                to={isAdmin ? "/admin-dashboard" : "/profile"}
-                onClick={() => setCurrentPage?.(isAdmin ? 'admin-dashboard' : 'profile')}
-                className={`text-xs font-bold uppercase tracking-wider transition-colors py-2 relative ${
-                  currentPage === 'profile' || currentPage === 'admin-dashboard' ? 'text-cyan-400' : 'text-slate-400 hover:text-cyan-400'
-                }`}
-              >
-                {isAdmin ? "Admin Panel" : "Dashboard"}
-              </Link>
+              <>
+                {!isAdmin && (
+                  <Link
+                    to="/performance-dashboard"
+                    onClick={() => setCurrentPage?.('performance-dashboard')}
+                    className={`text-xs font-bold uppercase tracking-wider transition-colors py-2 relative ${
+                      currentPage === 'performance-dashboard' ? 'text-teal-400' : 'text-slate-400 hover:text-teal-400'
+                    }`}
+                  >
+                    Performance
+                  </Link>
+                )}
+                <Link
+                  to={isAdmin ? "/admin-dashboard" : "/profile"}
+                  onClick={() => setCurrentPage?.(isAdmin ? 'admin-dashboard' : 'profile')}
+                  className={`text-xs font-bold uppercase tracking-wider transition-colors py-2 relative ${
+                    currentPage === 'profile' || currentPage === 'admin-dashboard' ? 'text-cyan-400' : 'text-slate-400 hover:text-cyan-400'
+                  }`}
+                >
+                  {isAdmin ? "Admin Panel" : "Dashboard"}
+                </Link>
+              </>
             )}
 
             {/* USER ROUTING LOGIC GATE */}
@@ -138,6 +151,22 @@ export default function Navbar({ user, setUser, currentPage, setCurrentPage }) {
                 {page}
               </Link>
             ))}
+
+            {/* SYNCHRONIZED PERFORMANCE ROUTE FOR MOBILE LAYOUT */}
+            {user && !isAdmin && (
+              <Link
+                to="/performance-dashboard"
+                onClick={() => {
+                  setCurrentPage?.('performance-dashboard');
+                  setIsOpen(false);
+                }}
+                className={`block w-full text-left px-4 py-3 rounded-xl text-xs font-bold uppercase transition-colors ${
+                  currentPage === 'performance-dashboard' ? 'bg-slate-900 text-teal-400' : 'text-slate-400 hover:bg-slate-900/50'
+                }`}
+              >
+                Performance
+              </Link>
+            )}
 
             {user && (
               <Link 

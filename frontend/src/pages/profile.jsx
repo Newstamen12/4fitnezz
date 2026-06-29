@@ -41,6 +41,36 @@ export default function Profile({ user }) {
   const resolvedUser = user?.user ? user.user : user;
   const clientName = resolvedUser?.username || resolvedUser?.name || 'Athlete';
   const clientEmail = resolvedUser?.email || 'No synchronized email';
+  const token = user?.token || user?.user?.token;
+
+  const [profileData, setProfileData] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [profileError, setProfileError] = useState(null);
+
+  // Load latest profile details from server so admin judgment is visible after login
+  useEffect(() => {
+    const fetchProfile = async () => {
+      setProfileLoading(true);
+      setProfileError(null);
+      try {
+        const response = await fetch('http://localhost:4000/api/user/profile-details', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setProfileData(data);
+        } else {
+          setProfileError(data.error || 'Unable to load full profile.');
+        }
+      } catch {
+        setProfileError('Network error while loading profile details.');
+      } finally {
+        setProfileLoading(false);
+      }
+    };
+
+    if (token) fetchProfile();
+  }, [token]);
 
   // Sanitized Safe HIIT Timer Loop
   useEffect(() => {
@@ -170,6 +200,24 @@ export default function Profile({ user }) {
         </div>
 
         {/* ANALYTICS ENGINE HUB */}
+        {profileLoading ? (
+          <div className="rounded-2xl border border-slate-800 bg-slate-950 p-6 text-slate-400 text-sm font-mono">Loading latest admin judgments...</div>
+        ) : profileData?.aiAnalysis ? (
+          <div className="rounded-2xl border border-emerald-500/20 bg-slate-950 p-6 shadow-xl mb-6">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-black text-white">Admin Performance Judgment</h2>
+                <p className="text-xs uppercase tracking-wider text-slate-500 font-mono">Latest coach review shown here</p>
+              </div>
+              <span className="text-[10px] uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 font-bold">{profileData.aiAnalysis.grade || 'No Grade Yet'}</span>
+            </div>
+            <div className="mt-4 text-sm text-slate-300 leading-relaxed border-t border-slate-800 pt-4 font-sans">
+              {profileData.aiAnalysis.feedback || 'No written feedback has been added yet by your coach.'}
+            </div>
+          </div>
+        ) : profileError ? (
+          <div className="rounded-2xl border border-rose-500/20 bg-slate-950 p-6 text-rose-300 text-sm font-mono">{profileError}</div>
+        ) : null}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="p-6 bg-slate-900 border border-slate-800 rounded-2xl relative overflow-hidden shadow-md">
             <span className="text-[10px] font-mono tracking-wider text-slate-500 uppercase font-black">Gross Volume Moved</span>

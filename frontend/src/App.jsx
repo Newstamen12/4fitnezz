@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Profile from './pages/Profile';
+import ClientDashboard from './pages/ClientDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import About from './pages/About'; 
 import PremiumUpgrade from './pages/PremiumUpgrade';
@@ -85,6 +86,10 @@ export default function App() {
             {/* Secure Profile / Role Protections */}
             <Route path="/profile" element={
               user && !isAdmin ? <Profile user={user} /> : <Navigate to="/login" replace />
+            } />
+
+            <Route path="/performance-dashboard" element={
+              user ? <ClientDashboard user={user} /> : <Navigate to="/login" replace />
             } />
             
             <Route path="/admin-dashboard" element={

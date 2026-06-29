@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
 export default function Signup() {
@@ -41,13 +41,14 @@ export default function Signup() {
 
       if (!response.ok) {
         setLoading(false);
-        setError(data.error);
+        // This will now capture and display "Password not strong enough" or "Email already in use"
+        setError(data.error || "The server rejected this provisioning request.");
       } else {
         setLoading(false);
         setSuccessMessage(data.message || "Signup successful! Check your email for your 6-digit OTP code.");
         setIsVerifying(true);
       }
-    } catch (err) {
+    } catch (error) { console.error(error);
       setLoading(false);
       setError("Cannot link to authentication service. Verify your backend server is running.");
     }
@@ -60,6 +61,7 @@ export default function Signup() {
     setSuccessMessage('');
 
     try {
+      // ⚠️ Note: Double check if your express router uses /verify-otp or /verify-code to match your controller!
       const response = await fetch('http://localhost:4000/api/user/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -70,13 +72,13 @@ export default function Signup() {
 
       if (!response.ok) {
         setLoading(false);
-        setError(data.error);
+        setError(data.error || "Invalid verification code sequence.");
       } else {
         setLoading(false);
         setSuccessMessage(data.message || "Account verified successfully! Redirecting to sign in...");
         setTimeout(() => navigate('/login'), 2000);
       }
-    } catch (err) {
+    } catch (error) { console.error(error);
       setLoading(false);
       setError("Network error encountered during verification handshake.");
     }

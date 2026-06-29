@@ -1,7 +1,7 @@
 // ==========================================
 // 1. INITIALIZE ENVIRONMENT VARIABLES FIRST!
 // ==========================================
-require('dotenv').config(); // Load configs into process.env before anything else imports
+require('dotenv').config(); 
 
 // ==========================================
 // 2. ALL OTHER REQUIRES / IMPORTS
@@ -11,10 +11,8 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const dns = require('node:dns');
 const helmet = require('helmet');
-// Change line 14 from './routes/paymentRoutes' to './routes/paymentsRoutes'
-const paymentRoutes = require('./routes/paymentsRoutes');
 
-// Routes (Now safely reading your loaded environment keys)
+const paymentRoutes = require('./routes/paymentsRoutes');
 const workoutRoutes = require('./routes/workout'); 
 const userRoutes = require('./routes/user');
 
@@ -27,16 +25,19 @@ dns.setServers(['8.8.8.8', '8.8.4.4']);
 // 4. INITIALIZE THE EXPRESS APP
 // ==========================================
 const app = express();
-
 const port = process.env.PORT || 4000;
 
 // ==========================================
-// 5. GLOBAL MIDDLEWARE (Must come before routes!)
+// 5. GLOBAL MIDDLEWARE
 // ==========================================
-app.use(cors());         // Allows cross-origin requests from your frontend
-app.use(helmet());       // Adds security headers to responses
+// 💡 PRODUCTION TIP: Update origin to your Vercel URL when you deploy
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    credentials: true
+})); 
 
-// Global custom logging middleware
+app.use(helmet()); 
+
 app.use((req, res, next) => {
     console.log(`[LOG] ${req.method} request sent to: ${req.path}`);
     next();
@@ -45,29 +46,34 @@ app.use((req, res, next) => {
 // ==========================================
 // 6. ROUTE DECLARATIONS
 // ==========================================
-// 💳 Mount payments first with a text parser to pass the exact raw string body to the webhook
+// 💳 Mount payments with a raw text parser for webhook signature verification
 app.use('/api/payments', express.text({ type: 'application/json' }), paymentRoutes);
 
-// 📄 Standard JSON body parsing for your user and workout routes
+// 📄 Standard JSON body parsing for other routes
 app.use(express.json()); 
 
 app.use('/api/user', userRoutes);
 app.use('/api/workouts', workoutRoutes);
 
-// Base sanity check route
 app.get('/', (req, res) => {
     res.json({ mssg: 'Welcome to the 4 Fitness Workout API' });
 });
 
 // ==========================================
-// 7. CONNECT TO MONGO DB & LISTEN
+// 7. CONNECT TO MONGO DB & LISTEN (Fixed Here)
 // ==========================================
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
-    console.log('Connected to MongoDB');
+    console.log('Connected to MongoDB Database');
+    
+    // 🔥 FIX: Server must explicitly listen on the port after a successful DB connection
+    app.listen(port, () => {
+        console.log(`[SERVER] Running cleanly on port: ${port}`);
+    });
   })
   .catch((error) => {
     console.log('Database connection error:', error);
+    process.exit(1); // Exit process if database connection fails entirely
   });
 
 module.exports = app;

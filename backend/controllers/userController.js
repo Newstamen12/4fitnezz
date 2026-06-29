@@ -1,4 +1,4 @@
-const User = require('../model/userModel');
+const { User, Swot } = require('../model/userModel');
 const jwt = require('jsonwebtoken');
 const sendEmail = require('../utils/sendEmail');
 
@@ -22,7 +22,7 @@ const loginUser = async (req, res) => {
       });
     }
     const token = createToken(user._id);
-    res.status(200).json({ email, token, role: user.role, plan: user.plan });
+    res.status(200).json({ email, token, role: user.role, plan: user.plan, username: user.username });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -131,7 +131,6 @@ const gradeClientPerformance = async (req, res) => {
     const aiTextOutput = response.text || "{}";
     const aiData = JSON.parse(aiTextOutput);
 
-    // Live sync update configuration path
     targetUser.performance = {
       strengthGrade: 0, 
       weaknessNotes: workoutMetrics,
@@ -210,6 +209,14 @@ const gradeUserProfile = async (req, res) => {
             feedback,
             updatedAt: new Date()
           }
+        },
+        $push: {
+          gradeHistory: {
+            grade,
+            feedback,
+            ratedBy: 'Admin',
+            ratedAt: new Date()
+          }
         }
       },
       { new: true } 
@@ -219,23 +226,34 @@ const gradeUserProfile = async (req, res) => {
       return res.status(404).json({ error: "Target operational profile not found." });
     }
 
+    // Send email notification if client has opt-in
+    if (updatedUser.emailNotifications?.onGradeUpdate && updatedUser.email) {
+      try {
+        await sendEmail(
+          updatedUser.email,
+          "Your 4 FITNESS Performance Review is Ready",
+          `Hi ${updatedUser.username},\n\nYour coach has reviewed your performance!\n\nGrade: ${grade}\n\nFeedback: ${feedback}\n\nLog in to your dashboard to view full details.\n\n- 4 FITNESS Team`
+        );
+      } catch (emailErr) {
+        console.log("Email notification failed for user:", updatedUser.email, emailErr.message);
+      }
+    }
+
     res.status(200).json(updatedUser);
   } catch (error) {
     res.status(400).json({ error: "Failed to update target user grading files." });
   }
 };
 
-// 👤 6. GET CURRENT USER PROFILE (Absolute Direct DB Sync Fetch)
+// 👤 6. GET CURRENT USER PROFILE
 const getUserProfile = async (req, res) => {
   try {
-    // Force a lean, non-cached direct query straight out of the database collections
     const fullUserDoc = await User.findById(req.user._id).lean();
 
     if (!fullUserDoc) {
       return res.status(404).json({ error: 'User workspace records not found.' });
     }
 
-    // 🔍 SERVER CONSOLE DIAGNOSTIC
     console.log("=== LIVE USER DOC FROM DB ===");
     console.log("Keys found:", Object.keys(fullUserDoc));
     if(fullUserDoc.performance) console.log("Performance sub-keys:", Object.keys(fullUserDoc.performance));
@@ -273,6 +291,161 @@ const generateAutomaticClientFeedback = async (req, res) => {
   }
 };
 
+// 📊 9. ADMINISTRATIVE SWOT ANALYSIS HANDLERS
+const saveClientSwot = async (req, res) => {
+  const { userId, strengths, weaknesses, opportunities, threats } = req.body;
+  try {
+    let swot = await Swot.findOneAndUpdate(
+      { userId },
+      { strengths, weaknesses, opportunities, threats, evaluatedBy: 'Admin' },
+      { new: true, upsert: true }
+    );
+    res.status(200).json({ success: true, data: swot });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to deploy SWOT metrics matrix' });
+  }
+};
+
+const getClientSwot = async (req, res) => {
+  try {
+    const swot = await Swot.findOne({ userId: req.params.userId });
+    res.status(200).json(swot || { strengths: '', weaknesses: '', opportunities: '', threats: '' });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error retrieving matrix' });
+  }
+};
+
+// 🎯 10. SET FITNESS GOALS (ADMIN)
+const setClientGoals = async (req, res) => {
+  const { clientId, title, description, target, deadline } = req.body;
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      clientId,
+      {
+        $push: {
+          goals: {
+            title,
+            description,
+            target,
+            deadline: deadline ? new Date(deadline) : null,
+            status: 'active',
+            setBy: 'Admin',
+            createdAt: new Date()
+          }
+        }
+      },
+      { new: true }
+    ).select('-password');
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'Client not found' });
+    }
+
+    // Send notification if enabled
+    if (updatedUser.emailNotifications?.onGoalSet && updatedUser.email) {
+      try {
+        await sendEmail(
+          updatedUser.email,
+          "New Fitness Goal Set for You",
+          `Hi ${updatedUser.username},\n\nYour coach has set a new goal:\n\nTitle: ${title}\nTarget: ${target}\nDeadline: ${deadline || 'Open'}\n\n${description}\n\nLog in to track your progress!\n\n- 4 FITNESS Team`
+        );
+      } catch (emailErr) {
+        console.log("Goal notification email failed:", emailErr.message);
+      }
+    }
+
+    res.status(200).json({ success: true, updatedUser });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to set goal' });
+  }
+};
+
+// 🎯 11. UPDATE GOAL STATUS (CLIENT OR ADMIN)
+const updateGoalStatus = async (req, res) => {
+  const { clientId, goalId, status } = req.body;
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      clientId,
+      {
+        $set: {
+          'goals.$[elem].status': status,
+          'goals.$[elem].updatedAt': new Date()
+        }
+      },
+      {
+        arrayFilters: [{ 'elem._id': goalId }],
+        new: true
+      }
+    ).select('-password');
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'Client or goal not found' });
+    }
+
+    res.status(200).json({ success: true, updatedUser });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update goal' });
+  }
+};
+
+// 📊 12. CLIENT PERFORMANCE DASHBOARD (GET ALL PERFORMANCE DATA)
+const getClientDashboard = async (req, res) => {
+  try {
+    const clientId = req.params.clientId || req.user._id;
+    const client = await User.findById(clientId).select('-password');
+
+    if (!client) {
+      return res.status(404).json({ error: 'Client not found' });
+    }
+
+    // Get SWOT data if exists
+    const swot = await Swot.findOne({ userId: clientId });
+
+    const dashboardData = {
+      username: client.username,
+      email: client.email,
+      plan: client.plan,
+      currentGrade: client.aiAnalysis.grade,
+      currentFeedback: client.aiAnalysis.feedback,
+      gradeHistory: client.gradeHistory || [],
+      goals: client.goals || [],
+      swot: swot || { strengths: '', weaknesses: '', opportunities: '', threats: '' },
+      emailNotifications: client.emailNotifications || { onGradeUpdate: true, onFeedback: true, onGoalSet: true }
+    };
+
+    res.status(200).json(dashboardData);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch dashboard data' });
+  }
+};
+
+// 📧 13. UPDATE EMAIL NOTIFICATION PREFERENCES
+const updateNotificationPreferences = async (req, res) => {
+  const { onGradeUpdate, onFeedback, onGoalSet } = req.body;
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $set: {
+          emailNotifications: {
+            onGradeUpdate: onGradeUpdate !== undefined ? onGradeUpdate : true,
+            onFeedback: onFeedback !== undefined ? onFeedback : true,
+            onGoalSet: onGoalSet !== undefined ? onGoalSet : true
+          }
+        }
+      },
+      { new: true }
+    ).select('-password');
+
+    res.status(200).json({ success: true, emailNotifications: updatedUser.emailNotifications });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update preferences' });
+  }
+};
+
 // 📦 UNIFIED EXPORT MODULE
 module.exports = {
   loginUser,
@@ -282,5 +455,11 @@ module.exports = {
   gradeUserProfile,
   getUserProfile,
   getAllProfiles,
-  generateAutomaticClientFeedback
+  generateAutomaticClientFeedback,
+  saveClientSwot,
+  getClientSwot,
+  setClientGoals,
+  updateGoalStatus,
+  getClientDashboard,
+  updateNotificationPreferences
 };
