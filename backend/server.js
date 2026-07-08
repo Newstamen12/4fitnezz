@@ -21,8 +21,8 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 
 const allowedOrigins = [
     ...(isDevelopment ? ['http://localhost:5173', 'http://127.0.0.1:5173'] : []),
-    'https://4fitnezz-frontend-39rl56qb3-newstamen-david-s-projects.vercel.app/',
-    '4fitnezz-frontend-git-main-newstamen-david-s-projects.vercel.app',
+    'https://4fitnezz-frontend-39rl56qb3-newstamen-david-s-projects.vercel.app',
+    'https://4fitnezz-frontend-git-main-newstamen-david-s-projects.vercel.app',
     ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [])
 ].filter(Boolean);
 
