@@ -55,7 +55,7 @@ export default function Login({ setUser }) {
         
         <div className="text-center">
           <h2 className="text-2xl font-black text-white uppercase tracking-wide">Sign In</h2>
-          <p className="text-xs text-slate-500 mt-1">Access the 4 FITNESS operational platform</p>
+          <p className="text-xs text-slate-500 mt-1">Access the 4 FITNEZZ operational platform</p>
         </div>
 
         <form onSubmit={handleLoginSubmit} className="space-y-4 text-left">
