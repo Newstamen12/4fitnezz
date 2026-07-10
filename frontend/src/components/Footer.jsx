@@ -15,7 +15,7 @@ export default function Footer({ setCurrentPage }) {
               onClick={() => setCurrentPage?.('home')}
               className="inline-flex items-center gap-2 font-black tracking-tighter text-lg text-white uppercase"
             >
-              4 <span className="text-emerald-400">FITNESS</span>
+              4 <span className="text-emerald-400">FITNEZZ</span>
             </Link>
             <p className="text-xs text-slate-500 font-mono">
               Forge your discipline. Track your metrics. Achieve perfection.
@@ -55,7 +55,7 @@ export default function Footer({ setCurrentPage }) {
               Core System Live
             </span>
             <p className="text-[10px] font-mono text-slate-600 mt-1">
-              &copy; {currentYear} 4 FITNESS. All rights reserved.
+              &copy; {currentYear} 4 FITNEZZ. All rights reserved.
             </p>
           </div>
 
