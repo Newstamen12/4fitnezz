@@ -55,17 +55,17 @@ export default function Home({ user }) {
           <div className="flex items-center gap-2 group cursor-pointer">
             <img 
               src={logoImg} 
-              alt="4 FITNESS Logo" 
+              alt="4 FITNEZZ Logo" 
               className="h-9 w-auto object-contain mix-blend-multiply group-hover:scale-[1.01] transition-transform duration-300"
               onError={(e) => {
-                e.target.src = "https://placehold.co/150x150/FAFAFA/333333?text=4+FITNESS";
+                e.target.src = "https://placehold.co/150x150/FAFAFA/333333?text=4+FITNEZZ";
               }}
             />
           </div>
 
           <div className="flex items-center gap-4">
             <span className="text-[10px] font-mono tracking-widest text-rose-500 font-bold uppercase bg-rose-50 px-3 py-1.5 rounded-full border border-rose-100">
-              {resolvedUser ? `WELCOME PORTAL // ${resolvedUser.name || 'MEMBER'}` : 'EMPOWER YOURSELF'}
+              {resolvedUser ? `WELCOME 4 FITNEZZ // ${resolvedUser.name || 'MEMBER'}` : 'EMPOWER YOURSELF'}
             </span>
           </div>
         </div>
@@ -78,7 +78,7 @@ export default function Home({ user }) {
           <div className="max-w-4xl mx-auto text-center px-4 space-y-8 relative">
             <div className="inline-flex items-center gap-2 bg-linear-to-r from-rose-50 to-amber-50 border border-rose-200/60 px-5 py-2 rounded-full shadow-xs">
               <span className="flex h-2 w-2 rounded-full bg-rose-400 animate-pulse" />
-              <span className="text-rose-500 text-xs font-mono font-black uppercase tracking-widest">THE 4 FITNESS EXPERIENCE</span>
+              <span className="text-rose-500 text-xs font-mono font-black uppercase tracking-widest">THE 4 FITNEZZ EXPERIENCE</span>
             </div>
             
             <h1 className="text-5xl sm:text-7xl font-light tracking-tight text-neutral-900 leading-[1.05]">
@@ -209,7 +209,7 @@ export default function Home({ user }) {
                   <div className="flex items-center gap-2">
                     <span className="h-px w-6 bg-rose-400" />
                     <span className="text-xs font-mono uppercase tracking-widest text-rose-500 font-bold">
-                      HEAD FITNESS DIRECTOR
+                      HEAD FITNEZZ DIRECTOR
                     </span>
                   </div>
                   <h2 className="text-3xl font-light tracking-tight text-neutral-900 uppercase">
@@ -218,11 +218,11 @@ export default function Home({ user }) {
                 </div>
 
                 <p className="text-neutral-500 text-sm leading-relaxed">
-                   Ifeanyi Onyeneke is the Founder and CEO of 4 Fitness, a fitness and wellness brand dedicated to helping individuals transform their health and achieve sustainable results. He holds a Bachelor's degree in Human Kinetics from Tai Solarin University of Education and began his professional fitness journey in 2023 at the Covenant University Gym Centre.
+                   Ifeanyi Onyeneke is the Founder and CEO of 4 FITNEZZ, a FITNEZZ and wellness brand dedicated to helping individuals transform their health and achieve sustainable results. He holds a Bachelor's degree in Human Kinetics from Tai Solarin University of Education and began his professional fitness journey in 2023 at the Covenant University Gym Centre.
 
-Over the years, Ifeanyi has built extensive experience in fitness coaching, exercise programming, and client transformation. He currently serves as a Professional Fitness Coach at i-Fitness and is a National Academy of Sports Medicine (NASM) Certified Personal Trainer (NASM-CPT)—an internationally recognized certification accredited by the National Commission for Certifying Agencies (NCCA).
+Over the years, Ifeanyi has built extensive experience in fitnezz coaching, exercise programming, and client transformation. He currently serves as a Professional Fitness Coach at i-Fitness and is a National Academy of Sports Medicine (NASM) Certified Personal Trainer (NASM-CPT)—an internationally recognized certification accredited by the National Commission for Certifying Agencies (NCCA).
 
-Driven by a passion for improving lives through fitness, Ifeanyi founded 4 Fitness to provide expert coaching, personalized training programs, and practical wellness solutions that empower individuals to build healthier lifestyles, maximize their physical potential, and achieve lasting results. 
+Driven by a passion for improving lives through fitnezz, Ifeanyi founded 4 Fitnezz to provide expert coaching, personalized training programs, and practical wellness solutions that empower individuals to build healthier lifestyles, maximize their physical potential, and achieve lasting results. 
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
@@ -245,7 +245,7 @@ Driven by a passion for improving lives through fitness, Ifeanyi founded 4 Fitne
 
       {/* 5. FOOTER */}
       <footer className="w-full border-t border-neutral-100 py-8 text-center text-[9px] font-mono text-neutral-400 tracking-widest uppercase relative z-10 bg-white">
-        © {new Date().getFullYear()} 4 FITNESS STUDIO LABS. ALL RIGHTS RESERVED.
+        © {new Date().getFullYear()} 4 FITNEZZ STUDIO LABS. ALL RIGHTS RESERVED.
       </footer>
 
     </div>

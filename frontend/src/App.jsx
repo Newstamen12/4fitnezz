@@ -36,7 +36,7 @@ function LandingPage({ setUser }) {
     <div className="min-h-[80vh] bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.16),_transparent_35%),linear-gradient(135deg,_#020617_0%,_#0f172a_60%,_#111827_100%)] px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl">
         <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-8 shadow-2xl shadow-emerald-950/20">
-          <h1 className="text-4xl font-black text-white mb-4">Welcome to 4 FITNESS</h1>
+          <h1 className="text-4xl font-black text-white mb-4">Welcome to 4 FITNEZZ</h1>
           <p className="text-slate-400 mb-6">Please sign in or create a profile to continue.</p>
           <div className="grid gap-4 sm:grid-cols-2">
             <a href="/login" className="rounded-2xl bg-emerald-500 px-6 py-4 text-center text-white font-bold uppercase tracking-[0.12em] hover:bg-emerald-400 transition">Sign In</a>
